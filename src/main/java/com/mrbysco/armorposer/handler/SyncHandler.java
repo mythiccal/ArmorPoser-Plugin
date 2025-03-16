@@ -33,6 +33,11 @@ public class SyncHandler implements PluginMessageListener {
 		CompoundTag tag = byteBuf.readNbt();
 		Entity entity = ArmorPoserPlugin.Plugin.getServer().getEntity(uuid);
 		if (tag != null && entity instanceof ArmorStand armorStand) {
+			if (!PermissionHandler.canEditArmorStand(player, armorStand)) {
+				player.sendMessage("§cYou don't have permission to edit armor stands in this land.");
+				return;
+			}
+			
 			if (tag.contains("Invisible"))
 				armorStand.setInvisible(tag.getBoolean("Invisible"));
 			if (tag.contains("NoBasePlate"))

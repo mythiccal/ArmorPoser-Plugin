@@ -1,6 +1,7 @@
 package com.mrbysco.armorposer;
 
 import com.mrbysco.armorposer.handler.EventHandlers;
+import com.mrbysco.armorposer.handler.PermissionHandler;
 import com.mrbysco.armorposer.handler.RenameHandler;
 import com.mrbysco.armorposer.handler.SwapHandler;
 import com.mrbysco.armorposer.handler.SyncHandler;
@@ -34,6 +35,8 @@ public final class ArmorPoserPlugin extends JavaPlugin {
 		getServer().getPluginManager().registerEvents(new EventHandlers(), this);
 
 		Plugin = this;
+
+		PermissionHandler.initialize(this);
 	}
 
 	/**

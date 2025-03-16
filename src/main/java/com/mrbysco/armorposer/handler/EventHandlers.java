@@ -18,6 +18,12 @@ public class EventHandlers implements Listener {
 		Player player = event.getPlayer();
 		Entity entity = event.getRightClicked();
 		if (entity instanceof ArmorStand armorStand && player.isSneaking() && canUseGUI(player)) {
+			if (!PermissionHandler.canEditArmorStand(player, armorStand)) {
+				player.sendMessage("§cYou don't have permission to edit armor stands in this area.");
+				event.setCancelled(true);
+				return;
+			}
+			
 			if (event.getHand() == EquipmentSlot.HAND) {
 				ByteArrayDataOutput out = ByteStreams.newDataOutput();
 				out.writeInt(armorStand.getEntityId());
@@ -34,5 +40,4 @@ public class EventHandlers implements Listener {
 		if (!ArmorPoserPlugin.requirePermissions) return true;
 		return player.hasPermission(ArmorPoserPlugin.USE_PERMISSION);
 	}
-
 }
