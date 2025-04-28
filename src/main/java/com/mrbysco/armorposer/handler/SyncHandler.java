@@ -1,5 +1,7 @@
 package com.mrbysco.armorposer.handler;
 
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
 import com.mrbysco.armorposer.ArmorPoserPlugin;
 import io.netty.buffer.Unpooled;
 import net.minecraft.nbt.CompoundTag;
@@ -38,6 +40,20 @@ public class SyncHandler implements PluginMessageListener {
 				return;
 			}
 			
+			// Check permissions for special operations
+			if (ArmorPoserPlugin.extraPermissions) {
+				if (tag.contains("Invisible") && tag.getBoolean("Invisible") != armorStand.isInvisible() && !PermissionHandler.canMakeInvisible(player)) {
+					player.sendMessage("§cYou don't have permission to make armor stands invisible. §e(Client visuals may temporarily change but will revert)");
+					return; // Exit early to prevent partial updates
+				}
+				
+				if (tag.contains("CustomNameVisible") && tag.getBoolean("CustomNameVisible") != armorStand.isCustomNameVisible() && !PermissionHandler.canMakeNameVisible(player)) {
+					player.sendMessage("§cYou don't have permission to make armor stand names visible. §e(Client visuals may temporarily change but will revert)");
+					return; // Exit early to prevent partial updates
+				}
+			}
+			
+			// Only process updates if permissions passed
 			if (tag.contains("Invisible"))
 				armorStand.setInvisible(tag.getBoolean("Invisible"));
 			if (tag.contains("NoBasePlate"))

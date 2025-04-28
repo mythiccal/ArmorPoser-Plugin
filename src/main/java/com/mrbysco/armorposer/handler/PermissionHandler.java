@@ -46,4 +46,30 @@ public class PermissionHandler {
         
         return area.isTrusted(player.getUniqueId());
     }
+
+    /**
+     * Checks if a player has permission to make armor stands invisible
+     * @param player The player attempting to make the stand invisible
+     * @return true if the player has permission, false otherwise
+     */
+    public static boolean canMakeInvisible(Player player) {
+        if (!ArmorPoserPlugin.extraPermissions) {
+            return true;
+        }
+        
+        return player.hasPermission(ArmorPoserPlugin.INVISIBLE_PERMISSION);
+    }
+
+    /**
+     * Checks if a player has permission to make armor stand names visible
+     * @param player The player attempting to make the name visible
+     * @return true if the player has permission, false otherwise
+     */
+    public static boolean canMakeNameVisible(Player player) {
+        if (!ArmorPoserPlugin.extraPermissions) {
+            return true;
+        }
+        
+        return player.hasPermission(ArmorPoserPlugin.NAMEVISIBLE_PERMISSION);
+    }
 }
