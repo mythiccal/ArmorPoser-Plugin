@@ -44,12 +44,12 @@ public class SyncHandler implements PluginMessageListener {
 			
 			// Check permissions for special operations
 			if (ArmorPoserPlugin.extraPermissions) {
-				if (tag.contains("Invisible") && tag.getBoolean("Invisible") != armorStand.isInvisible() && !PermissionHandler.canMakeInvisible(player)) {
+				if (tag.contains("Invisible") && tag.getBooleanOr("Invisible", false) != armorStand.isInvisible() && !PermissionHandler.canMakeInvisible(player)) {
 					player.sendMessage("§cYou don't have permission to make armor stands invisible. §e(Client visuals may temporarily change but will revert)");
 					return; // Exit early to prevent partial updates
 				}
 				
-				if (tag.contains("CustomNameVisible") && tag.getBoolean("CustomNameVisible") != armorStand.isCustomNameVisible() && !PermissionHandler.canMakeNameVisible(player)) {
+				if (tag.contains("CustomNameVisible") && tag.getBooleanOr("CustomNameVisible", false) != armorStand.isCustomNameVisible() && !PermissionHandler.canMakeNameVisible(player)) {
 					player.sendMessage("§cYou don't have permission to make armor stand names visible. §e(Client visuals may temporarily change but will revert)");
 					return; // Exit early to prevent partial updates
 				}
