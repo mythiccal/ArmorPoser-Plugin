@@ -3,6 +3,7 @@ package com.mrbysco.armorposer.handler;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.mrbysco.armorposer.ArmorPoserPlugin;
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -10,6 +11,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 
 public class EventHandlers implements Listener {
 
@@ -17,7 +20,28 @@ public class EventHandlers implements Listener {
 	public void onInteract(PlayerInteractAtEntityEvent event) {
 		Player player = event.getPlayer();
 		Entity entity = event.getRightClicked();
-		if (entity instanceof ArmorStand armorStand && player.isSneaking() && canUseGUI(player)) {
+
+		boolean isArmorStand = entity instanceof ArmorStand;
+		boolean isSneaking = player.isSneaking();
+		boolean canUse = canUseGUI(player);
+
+		if (isArmorStand && isSneaking && canUse) {
+			ArmorStand armorStand = (ArmorStand) entity;
+
+			// Prevent editing marker armor stands / AngelChest holograms 
+			boolean isAngelChestHologram = false;
+			PersistentDataContainer pdc = armorStand.getPersistentDataContainer();
+			NamespacedKey hologramKey = new NamespacedKey("angelchest", "ishologram"); 
+
+			if (pdc.has(hologramKey, PersistentDataType.STRING)) {
+				isAngelChestHologram = "true".equals(pdc.get(hologramKey, PersistentDataType.STRING));
+			}
+
+			if (armorStand.isMarker() || isAngelChestHologram) {
+				event.setCancelled(true);
+				return;
+			}
+
 			if (!PermissionHandler.canEditArmorStand(player, armorStand)) {
 				player.sendMessage("§cYou don't have permission to edit armor stands in this area.");
 				event.setCancelled(true);
