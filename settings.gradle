@@ -10,6 +10,10 @@ pluginManagement {
             name = "sonatype"
             url = "https://oss.sonatype.org/content/groups/public/"
         }
+        maven {
+            name = "CodeMC"
+            url = "https://repo.codemc.io/repository/maven-public/"
+        }
     }
 }
 

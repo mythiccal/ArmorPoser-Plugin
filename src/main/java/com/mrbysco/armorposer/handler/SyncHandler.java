@@ -1,5 +1,7 @@
 package com.mrbysco.armorposer.handler;
 
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
 import com.mrbysco.armorposer.ArmorPoserPlugin;
 import io.netty.buffer.Unpooled;
 import net.minecraft.core.Rotations;
