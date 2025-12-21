@@ -1,7 +1,7 @@
 plugins {
-    id("java-library")
-    id("io.papermc.paperweight.userdev") version "2.0.0-beta.14"
-    id("xyz.jpenilla.run-paper") version "2.3.1"
+    id 'java'
+    id("io.papermc.paperweight.userdev") version "2.0.0-beta.18"
+    id("xyz.jpenilla.run-paper") version "3.0.2"
 }
 
 group = 'com.mrbysco'
@@ -30,6 +30,10 @@ dependencies {
 tasks {
     compileJava {
         options.release = 21
+    }
+    runServer {
+        minecraftVersion("${mc_version}")
+        jvmArgs("-Xms2G", "-Xmx2G")
     }
 }
 

@@ -49,11 +49,14 @@ public class EventHandlers implements Listener {
 			}
 			
 			if (event.getHand() == EquipmentSlot.HAND) {
+				ByteArrayDataOutput lockedOut = ByteStreams.newDataOutput();
+				lockedOut.writeInt(armorStand.getEntityId());
+				lockedOut.writeBoolean(armorStand.isInvulnerable());
+				player.sendPluginMessage(ArmorPoserPlugin.Plugin, "armorposer:locked_packet", lockedOut.toByteArray());
+
 				ByteArrayDataOutput out = ByteStreams.newDataOutput();
 				out.writeInt(armorStand.getEntityId());
-				ArmorPoserPlugin.Plugin.getServer().getMessenger().registerOutgoingPluginChannel(ArmorPoserPlugin.Plugin, "armorposer:screen_packet");
 				player.sendPluginMessage(ArmorPoserPlugin.Plugin, "armorposer:screen_packet", out.toByteArray());
-				ArmorPoserPlugin.Plugin.getServer().getMessenger().unregisterOutgoingPluginChannel(ArmorPoserPlugin.Plugin, "armorposer:screen_packet");
 			}
 			event.setCancelled(true);
 		}
@@ -61,7 +64,6 @@ public class EventHandlers implements Listener {
 
 	private boolean canUseGUI(Player player) {
 		if (!ArmorPoserPlugin.enableConfigGui) return false;
-		if (!ArmorPoserPlugin.requirePermissions) return true;
-		return player.hasPermission(ArmorPoserPlugin.USE_PERMISSION);
+		return ArmorPoserPlugin.canUse(player);
 	}
 }

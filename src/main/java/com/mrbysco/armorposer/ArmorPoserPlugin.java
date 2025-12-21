@@ -5,9 +5,12 @@ import com.mrbysco.armorposer.handler.PermissionHandler;
 import com.mrbysco.armorposer.handler.RenameHandler;
 import com.mrbysco.armorposer.handler.SwapHandler;
 import com.mrbysco.armorposer.handler.SyncHandler;
+import org.bukkit.Server;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.plugin.messaging.Messenger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,8 +21,7 @@ public final class ArmorPoserPlugin extends JavaPlugin {
 
 	public static final String USE_PERMISSION = "armorposer.use";
 	public static final String RESIZE_PERMISSION = "armorposer.resize";
-	public static final String INVISIBLE_PERMISSION = "armorposer.invisible";
-	public static final String NAMEVISIBLE_PERMISSION = "armorposer.namevisible";
+	public static final String LOCK_PERMISSION = "armorposer.lock";
 
 	public static boolean enableConfigGui;
 	public static boolean requirePermissions;
@@ -27,15 +29,24 @@ public final class ArmorPoserPlugin extends JavaPlugin {
 	public static boolean extraPermissions;
 	public static List<String> resizeWhitelist = new ArrayList<>();
 
+	public static boolean canUse(Player player) {
+		if (!requirePermissions) return true;
+		return player.hasPermission(ArmorPoserPlugin.USE_PERMISSION);
+	}
+
 	@Override
 	public void onEnable() {
 		setupConfig();
 
-		getServer().getMessenger().registerIncomingPluginChannel(this, "armorposer:sync_packet", new SyncHandler());
-		getServer().getMessenger().registerIncomingPluginChannel(this, "armorposer:swap_packet", new SwapHandler());
-		getServer().getMessenger().registerIncomingPluginChannel(this, "armorposer:rename_packet", new RenameHandler());
+		final Server server = getServer();
+		final Messenger messenger = server.getMessenger();
+		messenger.registerIncomingPluginChannel(this, "armorposer:sync_packet", new SyncHandler());
+		messenger.registerIncomingPluginChannel(this, "armorposer:swap_packet", new SwapHandler());
+		messenger.registerIncomingPluginChannel(this, "armorposer:rename_packet", new RenameHandler());
+		messenger.registerOutgoingPluginChannel(this, "armorposer:screen_packet");
+		messenger.registerOutgoingPluginChannel(this, "armorposer:locked_packet");
 
-		getServer().getPluginManager().registerEvents(new EventHandlers(), this);
+		server.getPluginManager().registerEvents(new EventHandlers(), this);
 
 		Plugin = this;
 
