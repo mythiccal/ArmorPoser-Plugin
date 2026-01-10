@@ -22,6 +22,8 @@ public final class ArmorPoserPlugin extends JavaPlugin {
 	public static final String USE_PERMISSION = "armorposer.use";
 	public static final String RESIZE_PERMISSION = "armorposer.resize";
 	public static final String LOCK_PERMISSION = "armorposer.lock";
+	public static final String INVISIBLE_PERMISSION = "armorposer.invisible";
+	public static final String NAMEVISIBLE_PERMISSION = "armorposer.namevisible";
 
 	public static boolean enableConfigGui;
 	public static boolean requirePermissions;

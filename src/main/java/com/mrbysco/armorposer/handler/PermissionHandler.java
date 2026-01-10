@@ -1,22 +1,24 @@
 package com.mrbysco.armorposer.handler;
 
 import com.mrbysco.armorposer.ArmorPoserPlugin;
-import me.angeschossen.lands.api.LandsIntegration;
-import me.angeschossen.lands.api.land.Area;
 import org.bukkit.Location;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 public class PermissionHandler {
-    private static LandsIntegration landsAPI;
     private static boolean landsAvailable = false;
 
     public static void initialize(Plugin plugin) {
         if (plugin.getServer().getPluginManager().getPlugin("Lands") != null) {
-            landsAPI = LandsIntegration.of(plugin);
-            landsAvailable = true;
-            plugin.getLogger().info("Lands integration enabled for ArmorPoser.");
+            try {
+                LandsHandler.initialize(plugin);
+                landsAvailable = true;
+                plugin.getLogger().info("Lands integration enabled for ArmorPoser.");
+            } catch (NoClassDefFoundError | Exception e) {
+                plugin.getLogger().warning("Failed to initialize Lands integration even though the plugin was found.");
+                landsAvailable = false;
+            }
         } else {
             plugin.getLogger().info("Lands not found, land claim checks will be disabled.");
         }
@@ -37,14 +39,7 @@ public class PermissionHandler {
             return true;
         }
 
-        Location location = armorStand.getLocation();
-        Area area = landsAPI.getArea(location);
-        
-        if (area == null) {
-            return true;
-        }
-        
-        return area.isTrusted(player.getUniqueId());
+        return LandsHandler.canEdit(player, armorStand.getLocation());
     }
 
     /**
