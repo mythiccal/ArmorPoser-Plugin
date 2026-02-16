@@ -121,16 +121,22 @@ public class SyncHandler implements PluginMessageListener {
 				double y = movePos.y();
 				double z = movePos.z();
 				if (x != 0 || y != 0 || z != 0) {
+					// Check if player is trusted at the destination location
+					Location destinationLocation = new Location(armorStand.getWorld(), armorStand.getX() + x,
+							armorStand.getY() + y,
+							armorStand.getZ() + z);
+					
+					if (!PermissionHandler.canEditLocation(player, destinationLocation)) {
+						player.sendMessage("§cYou don't have permission to move armor stands to that location.");
+						return;
+					}
+					
 					float oldYaw = armorStand.getYaw();
 					float oldPitch = armorStand.getPitch();
 					if (ArmorPoserPlugin.isFolia()) {
-						armorStand.teleportAsync(new Location(armorStand.getWorld(), armorStand.getX() + x,
-								armorStand.getY() + y,
-								armorStand.getZ() + z), PlayerTeleportEvent.TeleportCause.PLUGIN);
+						armorStand.teleportAsync(destinationLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
 					} else {
-						armorStand.teleport(new Location(armorStand.getWorld(), armorStand.getX() + x,
-								armorStand.getY() + y,
-								armorStand.getZ() + z), PlayerTeleportEvent.TeleportCause.PLUGIN);
+						armorStand.teleport(destinationLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
 					}
 					armorStand.setBodyYaw(oldYaw);
 					armorStand.setRotation(oldYaw, oldPitch);

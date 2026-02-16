@@ -43,6 +43,24 @@ public class PermissionHandler {
     }
 
     /**
+     * Checks if a player has permission to edit at a specific location
+     * @param player The player attempting to edit
+     * @param location The location to check
+     * @return true if the player has permission, false otherwise
+     */
+    public static boolean canEditLocation(Player player, Location location) {
+        if (ArmorPoserPlugin.requirePermissions && !player.hasPermission(ArmorPoserPlugin.USE_PERMISSION)) {
+            return false;
+        }
+
+        if (!landsAvailable) {
+            return true;
+        }
+
+        return LandsHandler.canEdit(player, location);
+    }
+
+    /**
      * Checks if a player has permission to make armor stands invisible
      * @param player The player attempting to make the stand invisible
      * @return true if the player has permission, false otherwise
