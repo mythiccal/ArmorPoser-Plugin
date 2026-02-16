@@ -1,6 +1,7 @@
 package com.mrbysco.armorposer;
 
 import com.mrbysco.armorposer.handler.EventHandlers;
+import com.mrbysco.armorposer.handler.PermissionHandler;
 import com.mrbysco.armorposer.handler.RenameHandler;
 import com.mrbysco.armorposer.handler.SwapHandler;
 import com.mrbysco.armorposer.handler.SyncHandler;
@@ -21,10 +22,13 @@ public final class ArmorPoserPlugin extends JavaPlugin {
 	public static final String USE_PERMISSION = "armorposer.use";
 	public static final String RESIZE_PERMISSION = "armorposer.resize";
 	public static final String LOCK_PERMISSION = "armorposer.lock";
+	public static final String INVISIBLE_PERMISSION = "armorposer.invisible";
+	public static final String NAMEVISIBLE_PERMISSION = "armorposer.namevisible";
 
 	public static boolean enableConfigGui;
 	public static boolean requirePermissions;
 	public static boolean restrictResizeToOP;
+	public static boolean extraPermissions;
 	public static List<String> resizeWhitelist = new ArrayList<>();
 
 	public static boolean canUse(Player player) {
@@ -47,6 +51,8 @@ public final class ArmorPoserPlugin extends JavaPlugin {
 		server.getPluginManager().registerEvents(new EventHandlers(), this);
 
 		Plugin = this;
+
+		PermissionHandler.initialize(this);
 	}
 
 	/**
@@ -56,6 +62,7 @@ public final class ArmorPoserPlugin extends JavaPlugin {
 		config.addDefault("enableConfigGui", true);
 		config.addDefault("requirePermissions", false);
 		config.addDefault("restrictResizeToOP", false);
+		config.addDefault("extraPermissions", false);
 		config.addDefault("resizeWhitelist", List.of(""));
 		config.options().copyDefaults(true);
 		saveConfig();
@@ -63,6 +70,7 @@ public final class ArmorPoserPlugin extends JavaPlugin {
 		enableConfigGui = config.getBoolean("enableConfigGui");
 		requirePermissions = config.getBoolean("requirePermissions");
 		restrictResizeToOP = config.getBoolean("restrictResizeToOP");
+		extraPermissions = config.getBoolean("extraPermissions");
 		resizeWhitelist = config.getStringList("resizeWhitelist");
 	}
 

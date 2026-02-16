@@ -16,9 +16,15 @@ java {
     toolchain.languageVersion = JavaLanguageVersion.of(21)
 }
 
+repositories {
+    mavenCentral()
+    maven { url = "https://jitpack.io" }
+}
+
 dependencies {
     compileOnly "io.papermc.paper:paper-api:${paper_version}"
     paperweight.paperDevBundle("${paperweight_version}")
+    compileOnly "com.github.Angeschossen:LandsAPI:7.12.7"
 }
 
 tasks {

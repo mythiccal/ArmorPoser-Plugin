@@ -30,6 +30,11 @@ public class SwapHandler implements PluginMessageListener {
 		Action action = byteBuf.readEnum(Action.class);
 		Entity entity = ArmorPoserPlugin.Plugin.getServer().getEntity(uuid);
 		if (entity instanceof ArmorStand armorStand) {
+			if (!PermissionHandler.canEditArmorStand(player, armorStand)) {
+				player.sendMessage("§cYou don't have permission to edit armor stands in this land.");
+				return;
+			}
+			
 			switch (action) {
 				case SWAP_HANDS:
 					ItemStack offStack = armorStand.getItem(EquipmentSlot.OFF_HAND);

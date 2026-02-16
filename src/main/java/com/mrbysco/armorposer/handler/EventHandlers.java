@@ -3,6 +3,7 @@ package com.mrbysco.armorposer.handler;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.mrbysco.armorposer.ArmorPoserPlugin;
+import org.bukkit.NamespacedKey;
 import io.netty.buffer.Unpooled;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -13,6 +14,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 
 import java.util.List;
 
@@ -22,7 +25,34 @@ public class EventHandlers implements Listener {
 	public void onInteract(PlayerInteractAtEntityEvent event) {
 		Player player = event.getPlayer();
 		Entity entity = event.getRightClicked();
-		if (entity instanceof ArmorStand armorStand && player.isSneaking() && canUseGUI(player)) {
+
+		boolean isArmorStand = entity instanceof ArmorStand;
+		boolean isSneaking = player.isSneaking();
+		boolean canUse = canUseGUI(player);
+
+		if (isArmorStand && isSneaking && canUse) {
+			ArmorStand armorStand = (ArmorStand) entity;
+
+			// Prevent editing marker armor stands / AngelChest holograms 
+			boolean isAngelChestHologram = false;
+			PersistentDataContainer pdc = armorStand.getPersistentDataContainer();
+			NamespacedKey hologramKey = new NamespacedKey("angelchest", "ishologram"); 
+
+			if (pdc.has(hologramKey, PersistentDataType.STRING)) {
+				isAngelChestHologram = "true".equals(pdc.get(hologramKey, PersistentDataType.STRING));
+			}
+
+			if (armorStand.isMarker() || isAngelChestHologram) {
+				event.setCancelled(true);
+				return;
+			}
+
+			if (!PermissionHandler.canEditArmorStand(player, armorStand)) {
+				player.sendMessage("§cYou don't have permission to edit armor stands in this area.");
+				event.setCancelled(true);
+				return;
+			}
+			
 			if (event.getHand() == EquipmentSlot.HAND) {
 				ByteArrayDataOutput lockedOut = ByteStreams.newDataOutput();
 				lockedOut.writeInt(armorStand.getEntityId());
@@ -46,5 +76,4 @@ public class EventHandlers implements Listener {
 		if (!ArmorPoserPlugin.enableConfigGui) return false;
 		return ArmorPoserPlugin.canUse(player);
 	}
-
 }

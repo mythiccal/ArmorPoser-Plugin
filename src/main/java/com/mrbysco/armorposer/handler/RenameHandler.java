@@ -31,6 +31,11 @@ public class RenameHandler implements PluginMessageListener {
 		String name = byteBuf.readUtf();
 		Entity entity = ArmorPoserPlugin.Plugin.getServer().getEntity(uuid);
 		if (!name.isEmpty() && entity instanceof ArmorStand armorStand && (player.getLevel() >= 1 || player.getGameMode() == GameMode.CREATIVE)) {
+			if (!PermissionHandler.canEditArmorStand(player, armorStand)) {
+				player.sendMessage("§cYou don't have permission to edit armor stands in this land.");
+				return;
+			}
+			
 			player.giveExpLevels(-1);
 			armorStand.customName(Component.text(name));
 		}

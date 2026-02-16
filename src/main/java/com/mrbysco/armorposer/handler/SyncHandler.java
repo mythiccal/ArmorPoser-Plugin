@@ -1,5 +1,7 @@
 package com.mrbysco.armorposer.handler;
 
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
 import com.mrbysco.armorposer.ArmorPoserPlugin;
 import io.netty.buffer.Unpooled;
 import net.minecraft.core.Rotations;
@@ -43,6 +45,25 @@ public class SyncHandler implements PluginMessageListener {
 		CompoundTag tag = byteBuf.readNbt();
 		Entity entity = ArmorPoserPlugin.Plugin.getServer().getEntity(uuid);
 		if (tag != null && entity instanceof ArmorStand armorStand) {
+			if (!PermissionHandler.canEditArmorStand(player, armorStand)) {
+				player.sendMessage("§cYou don't have permission to edit armor stands in this land.");
+				return;
+			}
+
+			// Check permissions for special operations
+			if (ArmorPoserPlugin.extraPermissions) {
+				if (tag.contains("Invisible") && tag.getBoolean("Invisible").orElse(false) != armorStand.isInvisible() && !PermissionHandler.canMakeInvisible(player)) {
+					player.sendMessage("§cYou don't have permission to make armor stands invisible. §e(Client visuals may temporarily change but will revert)");
+					return; // Exit early to prevent partial updates
+				}
+
+				if (tag.contains("CustomNameVisible") && tag.getBoolean("CustomNameVisible").orElse(false) != armorStand.isCustomNameVisible() && !PermissionHandler.canMakeNameVisible(player)) {
+					player.sendMessage("§cYou don't have permission to make armor stand names visible. §e(Client visuals may temporarily change but will revert)");
+					return; // Exit early to prevent partial updates
+				}
+			}
+
+			// Only process updates if permissions passed
 			List<String> keysToRemove = tag.keySet().stream()
 					.filter(key -> !allowedKeys.contains(key))
 					.toList();
@@ -100,16 +121,22 @@ public class SyncHandler implements PluginMessageListener {
 				double y = movePos.y();
 				double z = movePos.z();
 				if (x != 0 || y != 0 || z != 0) {
+					// Check if player is trusted at the destination location
+					Location destinationLocation = new Location(armorStand.getWorld(), armorStand.getX() + x,
+							armorStand.getY() + y,
+							armorStand.getZ() + z);
+					
+					if (!PermissionHandler.canEditLocation(player, destinationLocation)) {
+						player.sendMessage("§cYou don't have permission to move armor stands to that location.");
+						return;
+					}
+					
 					float oldYaw = armorStand.getYaw();
 					float oldPitch = armorStand.getPitch();
 					if (ArmorPoserPlugin.isFolia()) {
-						armorStand.teleportAsync(new Location(armorStand.getWorld(), armorStand.getX() + x,
-								armorStand.getY() + y,
-								armorStand.getZ() + z), PlayerTeleportEvent.TeleportCause.PLUGIN);
+						armorStand.teleportAsync(destinationLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
 					} else {
-						armorStand.teleport(new Location(armorStand.getWorld(), armorStand.getX() + x,
-								armorStand.getY() + y,
-								armorStand.getZ() + z), PlayerTeleportEvent.TeleportCause.PLUGIN);
+						armorStand.teleport(destinationLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
 					}
 					armorStand.setBodyYaw(oldYaw);
 					armorStand.setRotation(oldYaw, oldPitch);
